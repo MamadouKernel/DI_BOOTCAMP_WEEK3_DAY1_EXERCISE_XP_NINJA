@@ -1,50 +1,53 @@
 function createCalendar(year, month) {
-    // Création de la table et du titre
-    let calendar = document.createElement("table");
-    let title = document.createElement("caption");
-    title.innerHTML = `Calendrier pour ${month}/${year}`;
-    calendar.appendChild(title);
+    // Obtenir la date du premier jour du mois
+    let firstDay = new Date(year, month, 1);
 
-    // Création des en-têtes de colonne pour les jours de la semaine
-    let weekRow = document.createElement("tr");
+    // Obtenir le numéro du jour de la semaine (0 pour dimanche, 1 pour lundi, etc.)
+    let firstDayWeekday = firstDay.getDay();
+
+    // Si le premier jour tombe un dimanche, mettre à jour le numéro du jour de la semaine pour être 7 (afin de l'afficher en tant que dimanche dans le calendrier)
+    if (firstDayWeekday === 0) {
+        firstDayWeekday = 7;
+    }
+
+    // Obtenir le nombre de jours dans le mois
+    let numDays = new Date(year, month + 1, 0).getDate();
+
+    // Créer un tableau pour stocker le calendrier
+    let calendar = [];
+
+    // Créer le titre du calendrier (noms des jours de la semaine)
     let weekdays = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
-    for (let day of weekdays) {
-        let weekDay = document.createElement("th");
-        weekDay.innerHTML = day;
-        weekRow.appendChild(weekDay);
+    let titleRow = `<tr><th>${weekdays.join("</th><th>")}</th></tr>`;
+    calendar.push(titleRow);
+
+    // Créer une ligne vide pour le premier jour du mois (pour aligner le calendrier correctement)
+    let emptyCells = "";
+    for (let i = 1; i < firstDayWeekday; i++) {
+        emptyCells += "<td></td>";
     }
-    calendar.appendChild(weekRow);
 
-    // Obtention du premier jour du mois et du nombre de jours dans le mois
-    let firstDay = new Date(year, month - 1, 1);
-    let numDays = new Date(year, month, 0).getDate();
-
-    // Calcul du nombre de semaines et de la première semaine partielle
-    let numWeeks = Math.ceil((numDays + firstDay.getDay()) / 7);
-    let partialWeek = (7 - firstDay.getDay()) % 7;
-
-    // Création des lignes de semaine et des cellules de jour
-    let day = 1;
-    for (let i = 0; i < numWeeks; i++) {
-        let weekRow = document.createElement("tr");
-        for (let j = 0; j < 7; j++) {
-            let dayCell = document.createElement("td");
-            if (i === 0 && j < partialWeek || day > numDays) {
-                dayCell.innerHTML = "&nbsp;";
-            }else {
-                dayCell.innerHTML = day;
-                day++;
+    // Créer le reste du calendrier
+    let currentDay = 1;
+    while (currentDay <= numDays) {
+        let row = "<tr>";
+        for (let i = 1; i <= 7; i++) {
+            if (currentDay > numDays) {
+                row += "<td></td>";
+            } else {
+                row += `<td>${currentDay}</td>`;
+                currentDay++;
             }
-            weekRow.appendChild(dayCell);
         }
-        calendar.appendChild(weekRow);
+        row += "</tr>";
+        calendar.push(row);
     }
 
-    return calendar;
-}
+    // Créer le tableau HTML et le retourner
+    return `<table>${calendar.join("")}</table>`;
+}  
 
 let annee = prompt("veuillez entrer une Annee au format AAAA")
 let day = prompt("veuillez entrer le jour au format JJ")
-
-let calendar = createCalendar(`${annee}`,`${day}`);
-document.body.appendChild(calendar);
+let calendarHTML = createCalendar(`${annee}`,`${day}`);
+document.body.innerHTML = calendarHTML;
